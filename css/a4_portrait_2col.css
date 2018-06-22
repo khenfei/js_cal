@@ -1,0 +1,106 @@
+@font-face {
+    font-family: dfkai_sb;
+    src: url(../fonts/dfkai_sb.ttf);
+}
+
+@font-face {
+    font-family: simkai;
+    src: url(../fonts/simkai.ttf);
+}
+
+body {
+    background: rgb(204, 204, 204);
+}
+
+page {
+    background-image: url(../images/plate_a4_portrait_5col.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: -1px -1px;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+page[size="A4"] {
+    width: 21cm;
+    height: 29.7cm;
+}
+
+page[size="A4"][layout="portrait"] {
+    width: 29.7cm;
+    height: 21cm;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+    body,
+    page {
+        margin: 0;
+        box-shadow: none;
+    }
+
+    #data {
+        display: none;
+    }
+}
+
+.vertical-chinese {
+    writing-mode: vertical-lr;
+    text-orientation: upright;
+    font-family: 'dfkai_sb', 'simkai', serif;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.p-fs {
+    font-size: 24px;
+    line-height: 55px;
+    position: absolute;
+    top: 300px;
+    left: -2px;
+}
+
+.ancestor {
+    line-height: 120px;
+    position: absolute;
+    left: 51px;
+}
+
+.ancestor.font-big {
+    top: 184px;
+    font-size: 50px;
+}
+
+.ancestor.font-medium {
+    top: 164px;
+    font-size: 40px;
+}
+
+.ancestor.font-small {
+    top: 164px;
+    font-size: 30px;
+}
+
+.n-fs {
+    font-size: 20px;
+    line-height: 51px;
+    position: absolute;
+    top: 384px;
+    left: 175px;
+}
+
+.record {
+    width: 5.94cm;
+    height: 21cm;
+    position: relative;
+    float: right;
+}
+
+#data {
+    margin-bottom: 10px;
+}

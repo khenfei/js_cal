@@ -1,0 +1,190 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="css/page.css">
+
+    <style>
+        @media print {
+            @page {
+                size: landscape;
+            }
+        }
+
+        .p-fs {
+            font-size: 24px;
+            line-height: 55px;
+            position: absolute;
+            top: 300px;
+            left: -2px;
+        }
+
+        .ancestor {
+            line-height: 120px;
+            position: absolute;
+            left: 51px;
+        }
+
+        .ancestor.font-big {
+            top: 184px;
+            font-size: 50px;
+        }
+
+        .ancestor.font-medium {
+            top: 164px;
+            font-size: 40px;
+        }
+
+        .ancestor.font-small {
+            top: 164px;
+            font-size: 30px;
+        }
+
+        .n-fs {
+            font-size: 20px;
+            line-height: 51px;
+            position: absolute;
+            top: 384px;
+            left: 175px;
+        }
+
+        .record {
+            width: 5.94cm;
+            height: 21cm;
+            position: relative;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="file" id="data" multiple size="50">
+    <page size="A4" layout="landscape"></page>
+    <!--<page size="A4" layout="landscape">
+        <div class="record">
+            <div class="vertical-chinese p-fs">曾繁安</div>
+            <div class="vertical-chinese ancestor font-big">冤親債主</div>
+            <div class="vertical-chinese n-fs">100</div>
+        </div>
+        <div class="record">
+            <div class="vertical-chinese p-fs">諸葛孔明</div>
+            <div class="vertical-chinese ancestor font-medium">先岳父陳文淦</div>
+            <div class="vertical-chinese n-fs">100</div>
+        </div>
+        <div class="record">
+            <div class="vertical-chinese p-fs">诸葛孔明</div>
+            <div class="vertical-chinese ancestor font-medium">先岳父陳淦</div>
+            <div class="vertical-chinese n-fs">100</div>
+        </div>
+        <div class="record">
+            <div class="vertical-chinese p-fs">諸葛亮</div>
+            <div class="vertical-chinese ancestor font-small">郭門堂上歷代祖先</div>
+            <div class="vertical-chinese n-fs">100</div>
+        </div>
+
+    </page>
+    <page size="A4" layout="landscape">
+        <div class="record">
+            <div class="vertical-chinese p-fs">曾繁安</div>
+            <div class="vertical-chinese ancestor font-big">冤親債主</div>
+            <div class="vertical-chinese n-fs">100</div>
+        </div>
+
+    </page>-->
+
+    <script lang="javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script lang="javascript" src="js/xlsx.full.min.js"></script>
+    <script>
+        let buildPrayer = function (value) {
+            return $(document.createElement('div')).addClass('vertical-chinese p-fs').text(value);
+        }
+
+        let buildAncestor = function (value) {
+            let fontSize = 'font-small';
+            if (value.length < 5) {
+                fontSize = 'font-big';
+            } else if (value.length < 7) {
+                fontSize = 'font-medium';
+            }
+            return $(document.createElement('div')).addClass('vertical-chinese ancestor').addClass(fontSize).text(value);
+        }
+
+        let buildNumber = function (value) {
+            return $(document.createElement('div')).addClass('vertical-chinese n-fs').text(value);
+        }
+
+        let buildColumn = function (record) {
+            let rDiv = $(document.createElement('div')).addClass('record');
+            rDiv.append(buildPrayer(record.prayer));
+            rDiv.append(buildAncestor(record.ancestor));
+            rDiv.append(buildNumber(record.number));
+            return rDiv;
+        }
+
+        let buildPage = function () {
+            return $(document.createElement('page')).attr('size', 'A4').attr('layout', 'portrait');
+        }
+
+        let populateContent = function (data) {
+            $('page').remove();
+            let body = $('body');
+            let pDiv = buildPage();
+            for (let i = 0; i < data.length; i++) {
+                if (i % 5 == 0 && i != 0) {
+                    body.append(pDiv);
+                    pDiv = buildPage();
+                }
+                pDiv.append(buildColumn({ number: data[i][0], ancestor: data[i][1], prayer: data[i][2] }));
+            }
+            body.append(pDiv);
+        }
+
+        let sheet2arr = function (sheet) {
+            let result = [];
+            let row;
+            let rowNum;
+            let colNum;
+            let range = XLSX.utils.decode_range(sheet['!ref']);
+            for (rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+                row = [];
+                for (colNum = range.s.c; colNum <= range.e.c; colNum++) {
+                    let nextCell = sheet[
+                        XLSX.utils.encode_cell({ r: rowNum, c: colNum })
+                    ];
+                    if (typeof nextCell === 'undefined') {
+                        row.push(void 0);
+                    } else row.push(nextCell.w);
+                }
+                result.push(row);
+            }
+            return result;
+        };
+
+        let rABS = true; // true: readAsBinaryString ; false: readAsArrayBuffer
+        function handleFile(e) {
+            if (e === undefined) {
+                return;
+            }
+            let files = e.target.files, f = files[0];
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                let data = e.target.result;
+                if (!rABS) data = new Uint8Array(data);
+                let workbook = XLSX.read(data, { type: rABS ? 'binary' : 'array' });
+                let firstSheetName = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheetName];
+                let dataArray = sheet2arr(worksheet);
+                dataArray.shift();
+                populateContent(dataArray);
+            };
+            if (rABS) reader.readAsBinaryString(f); else reader.readAsArrayBuffer(f);
+        }
+
+        $(function () {
+            $('#data').on('change', handleFile);
+        });
+    </script>
+</body>
+
+</html>
